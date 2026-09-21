@@ -1,0 +1,381 @@
+diff --git a/logstash/pipeline/00-my_collected.conf b/logstash/pipeline/00-my_collected.conf
+index d267aac..21191eb 100644
+--- a/logstash/pipeline/00-my_collected.conf
++++ b/logstash/pipeline/00-my_collected.conf
+@@ -64,9 +64,17 @@ filter {
+     ecs_compatibility   => "disabled"
+   }
+   
++  # S4S-FIX sensor-ip: only when the header carried no IP
++  if ![Attachment][RawLog][Content][host][ip] {
++    mutate {
++      add_field => {
++        '[Attachment][RawLog][Content][host][ip]' => '%{[@metadata][input][tcp][source][ip]}'
++      }
++    }
++  }
++
+   mutate {
+     add_field => {
+-      '[Attachment][RawLog][Content][host][ip]'        => '%{[@metadata][input][tcp][source][ip]}'
+       '[Attachment][RawLog][Content][host][port]'        => '%{[@metadata][input][tcp][source][port]}'
+       '[Attachment][RawLog][Content][@timestamp]'      => '%{@timestamp}'
+       '[Attachment][RawLog][Content][event][original]' => '%{message}'
+diff --git a/logstash/rulesets/apc-emu.yml b/logstash/rulesets/apc-emu.yml
+index e44a361..28f3aab 100644
+--- a/logstash/rulesets/apc-emu.yml
++++ b/logstash/rulesets/apc-emu.yml
+@@ -19,7 +19,7 @@ ruleset:
+       samples:
+         - "Mar 28 04:06:27 enviro1 12.34.56.78 EMU: Probe 2 'Loc Env Probe 2' high  humidity violation cleared, '39%RH'. 0x101D"
+     - id: 2802
+-      pattern: "Input Contact %{INT:[Attachment][RawLog][Content][APC-EMU][contact][number]:int} '%{DATA}:[Attachment][RawLog][Content][APC-EMU][contact][name]' opened, abnormal condition"
++      pattern: "Input Contact %{INT:[Attachment][RawLog][Content][APC-EMU][contact][number]:int} '%{DATA:[Attachment][RawLog][Content][APC-EMU][contact][name]}' opened, abnormal condition"
+       samples:
+         - "Mar 22 16:27:50 enviro1 12.34.56.78 EMU: Input Contact 4 'Rack 4 Front Door' opened, abnormal condition. 0x1013"
+     - id: 2803
+diff --git a/logstash/rulesets/bluecoat-system.yml b/logstash/rulesets/bluecoat-system.yml
+index 7ad91d5..78f1b55 100644
+--- a/logstash/rulesets/bluecoat-system.yml
++++ b/logstash/rulesets/bluecoat-system.yml
+@@ -14,87 +14,87 @@ ruleset:
+       samples:
+         - "Feb 11 14:59:40 192.168.10.11 ProxySG: E0000 Access Log FTP (im): Connecting to primary server 192.168.10.5 on port 21.(0) NORMAL_EVENT ../FTPClientAL.cpp 106"
+     - id: 11002
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}DNS lookup to (?<server>.+) for %{NOTSPACE:[Attachment][RawLog][Content][network][transport]} rejected by server\\.\\..+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}DNS lookup to (?<server>.+) for %{NOTSPACE:[Attachment][RawLog][Content][network][transport]} rejected by server\\..+NORMAL_EVENT"
+       samples:
+         - "Feb 07 12:50:34 192.168.11.181 ProxySG: 48041 DNS lookup to 192.168.10.100 for https rejected by server.(0) NORMAL_EVENT ../dns.cpp 1027"
+     - id: 11003
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Read/write mode entered from serial for user '?(?<userName>.+)'?\\."
++      pattern: "%{WORD}%{SPACE}Read/write mode entered from serial for user '?(?<userName>[^']+)'?"
+       samples:
+         - "Feb 01 14:06:38 192.168.11.181 ProxySG: 26001F Read/write mode entered from serial for user 'unknown user'(0) NORMAL_EVENT ..//../AuthConsole.cpp 230"
+     - id: 11007
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Read/write mode entered from %{IP:[Attachment][RawLog][Content][source][address]} for user '(?<UserName>.+)'\\..+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}Read/write mode entered from %{IP:[Attachment][RawLog][Content][source][address]} for user '(?<UserName>[^']+)'.+NORMAL_EVENT"
+       samples:
+         - "Feb 03 10:36:25 192.168.11.181 ProxySG: 26001F Read/write mode entered from 192.168.10.12 for user 'admin'(0) NORMAL_EVENT ..//../AuthConsole.cpp 230"
+     - id: 11008
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Enable password authentication from %{IP:[Attachment][RawLog][Content][source][address]} failed for user '(?<userName>.+)'\\..+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}Enable password authentication from %{IP:[Attachment][RawLog][Content][source][address]} failed for user '(?<userName>[^']+)'.+NORMAL_EVENT"
+       samples:
+         - "Feb 01 15:25:25 192.168.11.181 ProxySG: 260017 Enable password authentication from 192.168.10.12 failed for user 'admin'(0) NORMAL_EVENT ..//../AuthConsole.cpp 198"
+     - id: 11009
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Console user password authentication from %{IP:[Attachment][RawLog][Content][source][address]} failed for user '(?<userName>.+)'.+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}Console user password authentication from %{IP:[Attachment][RawLog][Content][source][address]} failed for user '(?<userName>.+)'.+NORMAL_EVENT"
+       samples:
+         - "Feb 03 12:31:35 192.168.11.181 ProxySG: 260017 Console user password authentication from 192.168.10.12 failed for user 'admin'(0) NORMAL_EVENT ..//../AuthConsole.cpp 160"
+     - id: 11010
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}NULL character found in the request line from %{IP:[Attachment][RawLog][Content][source][address]}"
++      pattern: "%{WORD}%{SPACE}NULL character found in the request line from %{IP:[Attachment][RawLog][Content][source][address]}"
+       samples:
+         - "Feb 03 11:14:08 192.168.11.181 ProxySG: 8040F NULL character found in the request line from 192.168.10.101(0) NORMAL_EVENT ../htp_client.cpp 1077"
+     - id: 11011
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Failed (?:password|none) for (?<src>.+)\\.+ssh2.+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}Failed (?:password|none) for (?<src>.+?)\\s+ssh2.+NORMAL_EVENT"
+       samples:
+         - "Feb 03 11:14:24 192.168.11.181 ProxySG: 46000C Failed none for root  ssh2(0) NORMAL_EVENT ../ssh_log.cpp 60"
+     - id: 11012
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Administrator login from %{IP:[Attachment][RawLog][Content][source][address]} denied.+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}Administrator login from %{IP:[Attachment][RawLog][Content][source][address]} denied.+NORMAL_EVENT"
+       samples:
+         - "Feb 03 11:14:54 192.168.11.181 ProxySG: 160003 Administrator login from 192.168.10.101 denied: Default secure admin mode(5) NORMAL_EVENT ../cli_worker.cpp 426"
+     - id: 11013
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Access (?:L|l)og .+:.+SEVERE_ERROR"
++      pattern: "%{WORD}%{SPACE}Access (?:L|l)og .+:.+SEVERE_ERROR"
+       samples:
+         - "Feb 04 21:22:04 192.168.11.181 ProxySG: E0008 Access log (main): Log uploading failed.  Remote filename: SG_main.log size: 0 KB.(0) SEVERE_ERROR ../LogManager.cpp 2174"
+     - id: 11014
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}CFSSL.+SEVERE_ERROR"
++      pattern: "%{WORD}%{SPACE}CFSSL.+SEVERE_ERROR"
+       samples:
+         - "Feb 03 12:51:39 192.168.11.181 ProxySG: 310000 CFSSL:SSL_accept error:1407609C:SSL routines:SSL23_GET_CLIENT_HELLO:http request(0) SEVERE_ERROR ../cf_ssl.cpp 1406"
+     - id: 11016
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Administrator login from %{IP:[Attachment][RawLog][Content][source][address]}, user '(?<usrName>.+)'.+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}Administrator login from %{IP:[Attachment][RawLog][Content][source][address]}, user '(?<usrName>.+)'.+NORMAL_EVENT"
+       samples:
+         - "Feb 02 10:48:27 192.168.11.181 ProxySG: 26001E Administrator login from 192.168.11.181, user 'admin'(0) NORMAL_EVENT ..//../AuthConsole.cpp 258"
+     - id: 11017
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Local: Authentication failed from %{IP:[Attachment][RawLog][Content][source][address]}: no such user in realm '(?<usrName>.+)'?.+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}Local: Authentication failed from %{IP:[Attachment][RawLog][Content][source][address]}: no such user in realm '(?<usrName>.+)'?.+NORMAL_EVENT"
+       samples:
+         - "Feb 02 10:48:38 192.168.11.181 ProxySG: 260001 Local: Authentication failed from 192.168.10.12: no such user in realm 'test'(6) NORMAL_EVENT ..//../AuthUtility.cpp 281"
+     - id: 11018
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}NTP: Tried all configured servers. Unable to obtain NTP update due to NTP server errors"
++      pattern: "%{WORD}%{SPACE}NTP: Tried all configured servers. Unable to obtain NTP update due to NTP server errors"
+       samples:
+         - "Feb 07 13:51:59 192.168.11.181 ProxySG: 90000 NTP: Tried all configured servers. Unable to obtain NTP update due to NTP server errors.(0) SEVERE_ERROR ../ntp.cpp 694"
+     - id: 11019
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}SSH admin at %{IP:[Attachment][RawLog][Content][source][address]}, (?<srcUser>[^,]+), changed password for user '(?<usrName>.+)' in local user list '(?<list>.+)'"
++      pattern: "%{WORD}%{SPACE}SSH admin at %{IP:[Attachment][RawLog][Content][source][address]}, (?<srcUser>[^,]+), changed password for user '(?<usrName>.+)' in local user list '(?<list>.+)'"
+       samples:
+         - "Feb 01 15:28:37 192.168.11.181 ProxySG: 160002 SSH admin at 192.168.10.12, admin, changed password for user 'koma' in local user list 'local_user_database'(0) CONFIGURATION_EVENT ../cli_parse.hpp 290"
+     - id: 11020
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}SSH admin at %{IP:[Attachment][RawLog][Content][source][address]}, (?<srcUser>[^,]+), added user '(?<usrName>.+)' to local user list '(?<list>.+)'"
++      pattern: "%{WORD}%{SPACE}SSH admin at %{IP:[Attachment][RawLog][Content][source][address]}, (?<srcUser>[^,]+), added user '(?<usrName>.+)' to local user list '(?<list>.+)'"
+       samples:
+         - "Feb 01 15:27:33 192.168.11.181 ProxySG: 160002 SSH admin at 192.168.10.12, admin, added user 'koma' to local user list 'local_user_database'(0) CONFIGURATION_EVENT ../cli_parse.hpp 290"
+     - id: 11021
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}(?:Management Console|SSH) admin at %{IP:[Attachment][RawLog][Content][destination][address]}, (?<desc>[^\\.]+)"
++      pattern: "%{WORD}%{SPACE}(?:Management Console|SSH) admin at %{IP:[Attachment][RawLog][Content][destination][address]}, (?<desc>[^\\.]+)"
+       samples:
+         - "Feb 01 17:49:25 192.168.11.181 ProxySG: 160002 SSH admin at 192.168.10.12, admin, services: Disabled ftp listener on port 21(0) CONFIGURATION_EVENT ../cli_parse.hpp 290"
+         - "Feb 01 15:37:21 192.168.11.181 ProxySG: 60003 Management Console admin at 192.168.10.12, admin, unable to start user requested test upload.(0) CONFIGURATION_EVENT ../cag_agent.cpp 671"
+     - id: 11022
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Accepted password for (?<user>[^\\.]+).+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}Accepted password for (?<user>[^\\.]+).+NORMAL_EVENT"
+       samples:
+         - "Feb 15 10:54:21 192.168.11.181 ProxySG: 46000C Accepted password for admin  ssh2(0) NORMAL_EVENT ../ssh_log.cpp 60"
+     - id: 11023
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Failed publickey for (?<user>[^\\.]+).+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}Failed publickey for (?<user>[^\\.]+).+NORMAL_EVENT"
+       samples:
+         - "Feb 15 10:55:10 192.168.11.181 ProxySG: 46000C Failed publickey for admin  ssh2(0) NORMAL_EVENT ../ssh_log.cpp 60"
+     - id: 11024
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}DNS service restored.+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}DNS service restored.+NORMAL_EVENT"
+       samples:
+         - "Feb 04 12:51:40 192.168.11.181 ProxySG: 48010 DNS service restored after 0 timeouts, 0 refused connections and 1 rejected queries.(0) NORMAL_EVENT ../dns.cpp 1046"
+     - id: 11025
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Serial admin initiated reboot.+CONFIGURATION_EVENT"
++      pattern: "%{WORD}%{SPACE}Serial admin initiated reboot.+CONFIGURATION_EVENT"
+       samples:
+         - "Feb 01 14:07:56 192.168.11.181 ProxySG: 160002 Serial admin initiated reboot(0) CONFIGURATION_EVENT ../cli_parse.hpp 290"
+     - id: 11026
+-      pattern: "%{WORD}:%{SPACE}%{WORD}%{SPACE}Unable to send the keep alive message, make sure keep alive interval is less than the server timeout.+NORMAL_EVENT"
++      pattern: "%{WORD}%{SPACE}Unable to send the keep alive message, make sure keep alive interval is less than the server timeout.+NORMAL_EVENT"
+       samples:
+         - "Feb 08 17:48:04 192.168.11.181 ProxySG: E0000 Unable to send the keep alive message, make sure keep alive interval is less than the server timeout(32) NORMAL_EVENT ../LogStream.cpp 163"
+diff --git a/logstash/rulesets/cisco-asa.yml b/logstash/rulesets/cisco-asa.yml
+index 3805342..a5765d5 100644
+--- a/logstash/rulesets/cisco-asa.yml
++++ b/logstash/rulesets/cisco-asa.yml
+@@ -2,27 +2,19 @@ ruleset:
+   name: asa_pix_logs
+   field: "[Attachment][RawLog][Content][event][original]"
+   predicate:
+-    operator: or
++    operator: match
+     operands:
+-      - operator: in
+-        operands:
+-          - operator: variable
+-            operands: "[Attachment][RawLog][Content][message]"
+-          - operator: constant
+-            operands: "ASA-"
+-      - operator: in
+-        operands:
+-          - operator: variable
+-            operands: "[Attachment][RawLog][Content][message]"
+-          - operator: constant
+-            operands: "PIX-"
++      - operator: variable
++        operands: "[Attachment][RawLog][Content][event][original]"
++      - operator: constant
++        operands: "%(?:ASA|PIX|FWSM)-[0-7]-"
+   rules:
+     - id: 195
+       pattern: "-410001: Dropped %{NOTSPACE:[Attachment][RawLog][Content][network][transport]} %{NOTSPACE:[Attachment][RawLog][Content][network][protocol]} %{DATA} from %{DATA}:%{IP:[Attachment][RawLog][Content][source][address]}/%{POSINT:[Attachment][RawLog][Content][source][port]:int} to %{DATA}:%{IP:[Attachment][RawLog][Content][destination][address]}/%{POSINT:[Attachment][RawLog][Content][destination][port]:int}; %{GREEDYDATA:[Attachment][RawLog][Content][event][reason]}"
+       samples:
+         - "Sep 20 18:25:50 ASA_NAME %ASA-4-410001: Dropped UDP DNS packet_type from source_interface:source_address/source_port to dest_interface:dest_address/dest_port; error_length_type length length bytes exceeds max_length_type limit of maximum_length bytes"
+     - id: 196
+-      pattern: "-4000\\.\\.: I[PD]S:%{INT} %{DATA:[Attachment][RawLog][Content][event][reason]} from %{IP:[Attachment][RawLog][Content][source][address]} to %{IP:[Attachment][RawLog][Content][destination][address]} on interface %{DATA}"
++      pattern: "-4000\\d\\d: I[PD]S:%{INT} %{DATA:[Attachment][RawLog][Content][event][reason]} from %{IP:[Attachment][RawLog][Content][source][address]} to %{IP:[Attachment][RawLog][Content][destination][address]} on interface %{DATA}"
+       samples:
+         - "May 10 09:25:28 asa %ASA-4-400000: IPS:1000 IP options-Bad Option List from 193.211.21.12 to 78.12.34.1 on interface dmz"
+     - id: 197
+diff --git a/logstash/rulesets/cisco-router.yml b/logstash/rulesets/cisco-router.yml
+index 1d5538f..7fd8eb3 100644
+--- a/logstash/rulesets/cisco-router.yml
++++ b/logstash/rulesets/cisco-router.yml
+@@ -2,15 +2,15 @@ ruleset:
+   name: event_code_parsing
+   field: "[Attachment][RawLog][Content][event][original]"
+   predicate:
+-    operator: in
++    operator: match
+     operands:
+       - operator: variable
+-        operands: "[Attachment][RawLog][Content][event][code]"
++        operands: "[Attachment][RawLog][Content][event][original]"
+       - operator: constant
+-        operands: "^[A-Z0-9_]+-\\.+-[A-Z0-9_]$"
++        operands: "%[A-Z0-9_]+-[0-7]-[A-Z0-9_]+:"
+   rules:
+     - id: 5600
+-      pattern: "SEC-6-IPACCESSLOGP: list %{DATA:data} denied (udp|tcp) %{IP:[Attachment][RawLog][Content][source][address]}\\.%{INT:number}\\. -> %{IP:[Attachment][RawLog][Content][destination][address]}\\.%{POSINT:[Attachment][RawLog][Content][destination][port]:int}\\., %{INT:count} %{GREEDYDATA:text}"
++      pattern: "SEC-6-IPACCESSLOGP: list %{DATA:data} denied (udp|tcp) %{IP:[Attachment][RawLog][Content][source][address]}\\(%{INT:number}\\) -> %{IP:[Attachment][RawLog][Content][destination][address]}\\(%{POSINT:[Attachment][RawLog][Content][destination][port]:int}\\), %{INT:count} %{GREEDYDATA:text}"
+       samples:
+         - "Sep 23 07:30:41 gate 301270: 5d17h: %SEC-6-IPACCESSLOGP: list 101 denied tcp 1.2.3.4(1929) -> 5.6.7.8(80), 1 packet"
+     - id: 5601
+diff --git a/logstash/rulesets/imapd.yml b/logstash/rulesets/imapd.yml
+index befffa5..b3ee81a 100644
+--- a/logstash/rulesets/imapd.yml
++++ b/logstash/rulesets/imapd.yml
+@@ -2,12 +2,20 @@ ruleset:
+   name: imapd_parsing
+   field: "[Attachment][RawLog][Content][message]"
+   predicate:
+-    operator: in
++    operator: or
+     operands:
+-      - operator: variable
+-        operands: "[Attachment][RawLog][Content][process][name]"
+-      - operator: constant
+-        operands: "imapd"
++      - operator: in
++        operands:
++          - operator: variable
++            operands: "[Attachment][RawLog][Content][process][name]"
++          - operator: constant
++            operands: "imapd"
++      - operator: in
++        operands:
++          - operator: variable
++            operands: "[Attachment][RawLog][Content][process][name]"
++          - operator: constant
++            operands: "ipop3d"
+   rules:
+     - id: 25605
+       pattern: "Login failure user=%{USER:[Attachment][RawLog][Content][user][target][name]} host=(?:%{HOSTNAME:[Attachment][RawLog][Content][source][hostname]} )?\\[%{IP:[Attachment][RawLog][Content][source][address]}\\]"
+diff --git a/logstash/rulesets/ipchains.yml b/logstash/rulesets/ipchains.yml
+index 4a010bb..23a17bc 100644
+--- a/logstash/rulesets/ipchains.yml
++++ b/logstash/rulesets/ipchains.yml
+@@ -2,12 +2,20 @@ ruleset:
+   name: kernel_ulogd_parsing
+   field: "[Attachment][RawLog][Content][message]"
+   predicate:
+-    operator: in
++    operator: or
+     operands:
+-      - operator: variable
+-        operands: "[Attachment][RawLog][Content][process][name]"
+-      - operator: constant
+-        operands: "ulogd"
++      - operator: in
++        operands:
++          - operator: variable
++            operands: "[Attachment][RawLog][Content][process][name]"
++          - operator: constant
++            operands: "ulogd"
++      - operator: in
++        operands:
++          - operator: variable
++            operands: "[Attachment][RawLog][Content][process][name]"
++          - operator: constant
++            operands: "kernel"
+   rules:
+     - id: 700
+       pattern: "%{WORD:status} DENY (.*) PROTO=6 %{IP:[Attachment][RawLog][Content][source][address]}:%{POSINT:[Attachment][RawLog][Content][source][port]:int} %{IP:[Attachment][RawLog][Content][destination][address]}:%{POSINT:[Attachment][RawLog][Content][destination][port]}"
+diff --git a/logstash/rulesets/ironport.yml b/logstash/rulesets/ironport.yml
+index 116cf4e..9623f4b 100644
+--- a/logstash/rulesets/ironport.yml
++++ b/logstash/rulesets/ironport.yml
+@@ -2,15 +2,23 @@ ruleset:
+   name: ironport_parsing
+   field: "[Attachment][RawLog][Content][message]"
+   predicate:
+-    operator: in
++    operator: or
+     operands:
+-      - operator: variable
+-        operands: "[Attachment][RawLog][Content][message]"
+-      - operator: constant
+-        operands: "Info:"
++      - operator: in
++        operands:
++          - operator: variable
++            operands: "[Attachment][RawLog][Content][process][name]"
++          - operator: constant
++            operands: "Info"
++      - operator: in
++        operands:
++          - operator: variable
++            operands: "[Attachment][RawLog][Content][message]"
++          - operator: constant
++            operands: "Info:"
+   rules:
+     - id: 24501
+-      pattern: "Info: New SMTP ICID \\d+ interface [^\\)]+\\(%{NOTSPACE:nodeAddr}\\) address %{IP:[Attachment][RawLog][Content][destination][address]} reverse dns host unknown"
++      pattern: "New SMTP ICID \\d+ interface [^\\)]+\\(%{NOTSPACE:nodeAddr}\\) address %{IP:[Attachment][RawLog][Content][destination][address]} reverse dns host unknown"
+       samples:
+         - "Nov 24 00:06:25 mailcleaner1.pp.com Info: New SMTP ICID 30481570 interface Data 1 (22.4.4.8) address 7.15.16.10 reverse dns host unknown verified no"
+     - id: 24502
+diff --git a/logstash/rulesets/pam.yml b/logstash/rulesets/pam.yml
+index c6026b0..93d3a3a 100644
+--- a/logstash/rulesets/pam.yml
++++ b/logstash/rulesets/pam.yml
+@@ -18,7 +18,7 @@ ruleset:
+             operands: "PAM"
+   rules:
+     - id: 1
+-      pattern: "session opened for user (?=%{USERNAME:[Attachment][RawLog][Content][related][user]})%{USERNAME:[Attachment][RawLog][Content][user][effective][name]} by (?:(?=%{USERNAME:[Attachment][RawLog][Content][related][user]})%{USERNAME:[Attachment][RawLog][Content][user][name]]})?\\(uid=%{NONNEGINT:[Attachment][RawLog][Content][user][id]}\\)"
++      pattern: "session opened for user (?=%{USERNAME:[Attachment][RawLog][Content][related][user]})%{USERNAME:[Attachment][RawLog][Content][user][effective][name]} by (?:(?=%{USERNAME:[Attachment][RawLog][Content][related][user]})%{USERNAME:[Attachment][RawLog][Content][user][name]})?\\(uid=%{NONNEGINT:[Attachment][RawLog][Content][user][id]}\\)"
+       samples:
+         - "Aug 14 17:32:19 blah su(pam_unix)[17944]: session opened for user root by (uid=123)"
+         - "Dec  9 18:47:10 devel5 sshd(pam_unix)[13189]: session opened for user yyyy by xxxx(uid=0)"
+diff --git a/logstash/rulesets/sophos.yml b/logstash/rulesets/sophos.yml
+index ebb314c..2741511 100644
+--- a/logstash/rulesets/sophos.yml
++++ b/logstash/rulesets/sophos.yml
+@@ -10,11 +10,11 @@ ruleset:
+         operands: "aua"
+   rules:
+     - id: 50000
+-      pattern: "id=\"%{INT:id}\" severity=\"warn\" sys=\"System\" sub=\"auth\" name=\"Authentication failed\" srcip=\"%{IP:[Attachment][RawLog][Content][source][address]}\" host=\"%{HOSTNAME:[Attachment][RawLog][Content][source][hostname]}\" user=\"%{NOTSPACE:[Attachment][RawLog][Content][user][target][name]}\" caller=\"webadmin\" reason=\"DENIED\""
++      pattern: "id=\"%{INT:id}\" severity=\"warn\" sys=\"System\" sub=\"auth\" name=\"Authentication failed\" srcip=\"%{IP:[Attachment][RawLog][Content][source][address]}\" host=\"(?:%{HOSTNAME:[Attachment][RawLog][Content][source][hostname]})?\" user=\"%{NOTSPACE:[Attachment][RawLog][Content][user][target][name]}\" caller=\"webadmin\" reason=\"DENIED\""
+       samples:
+         - "Aug 30 17:10:09 psm-srvlin aua[25177]: id=\"3005\" severity=\"warn\" sys=\"System\" sub=\"auth\" name=\"Authentication failed\" srcip=\"172.17.87.11\" host=\"\" user=\"pcs_satt@services\" caller=\"webadmin\" reason=\"DENIED\""
+     - id: 50001
+-      pattern: "id=\"%{INT:id}\" severity=\"info\" sys=\"System\" sub=\"auth\" name=\"Authentication successful\" srcip=\"%{IP:[Attachment][RawLog][Content][source][address]}\" host=\"%{HOSTNAME:[Attachment][RawLog][Content][source][hostname]}\" user=\"%{NOTSPACE:[Attachment][RawLog][Content][user][target][name]}\" caller=\"webadmin\" engine=\"%{NOTSPACE:engine}\""
++      pattern: "id=\"%{INT:id}\" severity=\"info\" sys=\"System\" sub=\"auth\" name=\"Authentication successful\" srcip=\"%{IP:[Attachment][RawLog][Content][source][address]}\" host=\"(?:%{HOSTNAME:[Attachment][RawLog][Content][source][hostname]})?\" user=\"%{NOTSPACE:[Attachment][RawLog][Content][user][target][name]}\" caller=\"webadmin\" engine=\"%{NOTSPACE:engine}\""
+       samples:
+         - "Aug 30 17:10:09 psm-srvlin26 aua[25380]: id=\"3004\" severity=\"info\" sys=\"System\" sub=\"auth\" name=\"Authentication successful\" srcip=\"172.17.87.17\" host=\"\" user=\"pc_oben\" caller=\"webadmin\" engine=\"adirectory\""
+     - id: 50002
+diff --git a/logstash/rulesets/tripwire.yml b/logstash/rulesets/tripwire.yml
+index 989a495..adf0dba 100644
+--- a/logstash/rulesets/tripwire.yml
++++ b/logstash/rulesets/tripwire.yml
+@@ -2,12 +2,20 @@ ruleset:
+   name: tripwire_parsing
+   field: "[Attachment][RawLog][Content][message]"
+   predicate:
+-    operator: in
++    operator: or
+     operands:
+-      - operator: variable
+-        operands: "[Attachment][RawLog][Content][message]"
+-      - operator: constant
+-        operands: "Tripwire"
++      - operator: in
++        operands:
++          - operator: variable
++            operands: "[Attachment][RawLog][Content][process][name]"
++          - operator: constant
++            operands: "Tripwire"
++      - operator: in
++        operands:
++          - operator: variable
++            operands: "[Attachment][RawLog][Content][process][name]"
++          - operator: constant
++            operands: "tripwire"
+   rules:
+     - id: 24001
+       pattern: "Added (?<Path>.*) on (?<dstAddr>.*) by (?<data>.*)"
+diff --git a/logstash/scripts/match.rb b/logstash/scripts/match.rb
+index f3556d6..08be190 100644
+--- a/logstash/scripts/match.rb
++++ b/logstash/scripts/match.rb
+@@ -104,8 +104,8 @@ def eval_predicate(predicate, event)
+     opd2 = !!eval_predicate(predicate['operands'][1], event)
+   when 'match', 'not_match'
+     begin
+-      opd2 = opd1
+-      opd1 = Regex.new(eval_predicate(predicate['operands'][1], event)).match(opd1)
++      m = Regexp.new(eval_predicate(predicate['operands'][1], event)).match(opd1.to_s) # S4S-FIX match
++      return op == 'match' ? !m.nil? : m.nil?
+     rescue
+       # @FIXME Log a warning/error
+       return false
