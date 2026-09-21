@@ -6,6 +6,17 @@ rulesets shipped with [Concerto-SIEM](https://github.com/IDMEFv2/Concerto-SIEM).
 Rules here are **additions**: they never replace a shipped file. See
 [HOWTO.md](HOWTO.md) to write your own.
 
+## Update – 21 September 2026 (draft)
+
+- **Method, AI usage, pitfalls, reusable prompts and results:** [README-RULES.md](README-RULES.md).
+- **Gate-2 end-to-end results and list of fixes:** [docs/GATE2_FIXES.md](docs/GATE2_FIXES.md) – 169 rules tested in the
+  ReelIT lab, 147 PASS, 0 wrong category or priority.
+- **57 new mapping files** (309 rules) in `logstash/idmef/`; all mappings now use `"[Type]": "Cyber"` (the
+  `[Type][0]` form made Elasticsearch reject the alert).
+- **Fixes to shipped Concerto-SIEM files** (10 rulesets, `match.rb`, pipeline), for review with the maintainers:
+  [patches/concerto-siem/](patches/concerto-siem/README.md).
+- The figures and status in the sections below date from the previous delivery and will be updated.
+
 ## Layout
 
 The tree mirrors Concerto-SIEM, so files can be copied straight into a deployment:
