@@ -5,12 +5,12 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Unauthorized
       '[Analyzer][Data]': &id001
       - Log
       - Authentication
-      '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'
+      '[Target][0][Hostname]': '%{[Attachment][RawLog][Content][destination][address]}'
       '[Target][0][User]': '%{[Attachment][RawLog][Content][user][target][name]}'
       '[Priority]': Medium
       '[Description]': 'SecurID: %{[Attachment][RawLog][Content][event][reason]} (login ''%{[Attachment][RawLog][Content][user][target][name]}'') from %{[Attachment][RawLog][Content][source][address]}'
@@ -18,10 +18,10 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Unauthorized
       '[Analyzer][Data]': *id001
-      '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'
+      '[Target][0][Hostname]': '%{[Attachment][RawLog][Content][destination][address]}'
       '[Target][0][User]': '%{[Attachment][RawLog][Content][user][target][name]}'
       '[Priority]': Medium
       '[Description]': 'SecurID: %{[Attachment][RawLog][Content][event][reason]} (login ''%{[Attachment][RawLog][Content][user][target][name]}'') from %{[Attachment][RawLog][Content][source][address]}'
@@ -29,10 +29,10 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Forced
       '[Analyzer][Data]': *id001
-      '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'
+      '[Target][0][Hostname]': '%{[Attachment][RawLog][Content][destination][address]}'
       '[Target][0][User]': '%{[Attachment][RawLog][Content][user][target][name]}'
       '[Priority]': High
       '[Description]': 'SecurID: passcode reuse attack detected (login ''%{[Attachment][RawLog][Content][user][target][name]}'') from %{[Attachment][RawLog][Content][source][address]}'
@@ -40,10 +40,10 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Lost
       '[Analyzer][Data]': *id001
-      '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'
+      '[Target][0][Hostname]': '%{[Attachment][RawLog][Content][destination][address]}'
       '[Target][0][User]': '%{[Attachment][RawLog][Content][user][target][name]}'
       '[Priority]': High
       '[Description]': 'SecurID: token disabled, suspected stolen (login ''%{[Attachment][RawLog][Content][user][target][name]}'')'

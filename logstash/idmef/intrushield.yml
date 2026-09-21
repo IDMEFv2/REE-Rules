@@ -4,7 +4,7 @@ ruleset:
   - id: 24901
     fields:
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Availability.Failure
       '[Analyzer][Data]': &id001
       - Log
@@ -14,7 +14,7 @@ ruleset:
   - id: 24902
     fields:
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Availability.Outage
       '[Analyzer][Data]': *id001
       '[Priority]': Medium
@@ -22,7 +22,7 @@ ruleset:
   - id: 24903
     fields:
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Availability.HeartBeat
       '[Analyzer][Data]': *id001
       '[Priority]': Low
@@ -30,7 +30,7 @@ ruleset:
   - id: 24904
     fields:
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Availability.Failure
       '[Analyzer][Data]': *id001
       '[Priority]': Medium

@@ -5,7 +5,7 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Unauthorized
       '[Analyzer][Data]': &id001
       - Log
@@ -16,7 +16,7 @@ ruleset:
   - id: 22002
     fields:
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Fraud.Masquerade
       '[Analyzer][Data]': *id001
       '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'
@@ -26,7 +26,7 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Availability.Misconfiguration
       '[Analyzer][Data]': *id001
       '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'
@@ -36,7 +36,7 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Other.Undetermined
       '[Analyzer][Data]': *id001
       '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'
@@ -45,7 +45,7 @@ ruleset:
   - id: 22005
     fields:
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Authorized
       '[Analyzer][Data]':
       - Log
@@ -59,7 +59,7 @@ ruleset:
       '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Authorized
       '[Analyzer][Data]':
       - Log
@@ -69,7 +69,7 @@ ruleset:
   - id: 22007
     fields:
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Authorized
       '[Analyzer][Data]': *id001
       '[Source][0][User]': '%{[Attachment][RawLog][Content][user][name]}'
@@ -79,7 +79,7 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Other.Undetermined
       '[Analyzer][Data]': *id001
       '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'

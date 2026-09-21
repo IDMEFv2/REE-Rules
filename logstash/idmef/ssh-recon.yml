@@ -9,7 +9,7 @@ ruleset:
         "[Analyzer][Data]":
           - "Log"
           - "Authentication"
-        "[Type][0]": "Cyber"
+        "[Type]": "Cyber"
         "[Source][0][IP]": "%{[Attachment][RawLog][Content][source][address]}"
         "[Source][0][Protocol]":
           - "tcp"
@@ -25,7 +25,7 @@ ruleset:
         "[Analyzer][Data]":
           - "Log"
           - "Authentication"
-        "[Type][0]": "Cyber"
+        "[Type]": "Cyber"
         "[Source][0][IP]": "%{[Attachment][RawLog][Content][source][address]}"
         "[Source][0][Protocol]":
           - "tcp"

@@ -5,7 +5,7 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Unauthorized
       '[Analyzer][Data]': &id001
       - Log
@@ -17,7 +17,7 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Unauthorized
       '[Analyzer][Data]': *id001
       '[Target][0][User]': '%{[Attachment][RawLog][Content][user][target][name]}'
@@ -27,7 +27,7 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Authorized
       '[Analyzer][Data]': *id001
       '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'
@@ -38,7 +38,7 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Authorized
       '[Analyzer][Data]': *id001
       '[Target][0][User]': '%{[Attachment][RawLog][Content][user][target][name]}'
@@ -48,7 +48,7 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Unauthorized
       '[Analyzer][Data]': *id001
       '[Priority]': Medium
@@ -57,7 +57,7 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Unauthorized
       '[Analyzer][Data]': *id001
       '[Target][0][User]': '%{[Attachment][RawLog][Content][user][target][name]}'
@@ -68,7 +68,7 @@ ruleset:
       '[Source][0][Protocol][0]': '%{[Attachment][RawLog][Content][network][transport]}'
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Authorized
       '[Analyzer][Data]': *id001
       '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'
@@ -79,7 +79,7 @@ ruleset:
     fields:
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Authorized
       '[Analyzer][Data]': *id001
       '[Priority]': Info
@@ -89,7 +89,7 @@ ruleset:
       '[Source][0][Protocol][0]': '%{[Attachment][RawLog][Content][network][protocol]}'
       '[@metadata][IDMEFv2][source]': source
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Authorized
       '[Analyzer][Data]': *id001
       '[Target][0][IP]': '%{[Attachment][RawLog][Content][destination][address]}'

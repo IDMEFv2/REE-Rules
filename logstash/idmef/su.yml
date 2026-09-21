@@ -10,7 +10,7 @@ ruleset:
       fallback: Medium
     fields:
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Escalation
       '[Analyzer][Data]': &id001
       - Log
@@ -26,7 +26,7 @@ ruleset:
       fallback: Info
     fields:
       '[@metadata][IDMEFv2][target]': host
-      '[Type][0]': Cyber
+      '[Type]': Cyber
       '[Category][0]': Access.Authorized
       '[Analyzer][Data]': *id001
       '[Target][0][User]': '%{[Attachment][RawLog][Content][user][effective][name]}'

@@ -19,7 +19,7 @@ ruleset:
           fallback: "Other.Undetermined"
       fields:
         "[@metadata][IDMEFv2][target]": "host"
-        "[Type][0]": "Cyber"
+        "[Type]": "Cyber"
         "[Analyzer][Data]":
           - "Log"
         "[Source][0][IP]": "%{[Attachment][RawLog][Content][source][address]}"
