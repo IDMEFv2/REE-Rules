@@ -15,6 +15,12 @@ Rules here are **additions**: they never replace a shipped file. See
   `[Type][0]` form made Elasticsearch reject the alert).
 - **Fixes to shipped Concerto-SIEM files** (10 rulesets, `match.rb`, pipeline), for review with the maintainers:
   [patches/concerto-siem/](patches/concerto-siem/README.md).
+- **6 new correlation rules, not yet tested end to end** (pushed on request for review):
+  `account_bruteforce`, `bruteforce_success`, `firewall_scan`, `masquerade_burst`, `password_spraying`,
+  `sudo_failures` in `correlator/rules/`; test plan and injection script in [tests/](tests/TESTPLAN.md).
+  They rely on flat fields (`Source_IP`, `Target_User`...) that a standard deployment does not produce yet (see the
+  test plan); `bruteforce_success` and `password_spraying` use Sigma correlation types not yet validated on the
+  Concerto correlator.
 - The figures and status in the sections below date from the previous delivery and will be updated.
 
 ## Layout

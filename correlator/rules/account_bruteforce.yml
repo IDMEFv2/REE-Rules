@@ -1,0 +1,28 @@
+# STATUS: not yet tested end to end - pushed on request for review (22/09/2026). See tests/TESTPLAN.md.
+title: Authentication denied
+name: authentication_denied
+description: Denied authentication reported by any authentication source (VPN, RADIUS, TACACS, PAM, firewall admin access).
+logsource:
+    category: alerts
+detection:
+    selection:
+        Category: Access.Unauthorized
+        Analyzer.Data: Authentication
+    condition: selection
+---
+title: Brute force on a single account
+description: Many denied authentications against the same account, whatever the source (multi-source aware).
+idmefv2:
+  Category:
+    - "Access.Forced"
+  Priority: "High"
+correlation:
+    type: event_count
+    rules:
+        - authentication_denied
+    group-by:
+        - Target_User
+    timespan: 10m
+    condition:
+        gte: 10
+    generate: true

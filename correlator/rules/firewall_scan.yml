@@ -1,0 +1,28 @@
+# STATUS: not yet tested end to end - pushed on request for review (22/09/2026). See tests/TESTPLAN.md.
+title: Network access denied
+name: network_access_denied
+description: Access denied at network level (firewall drop, blocked connection).
+logsource:
+    category: alerts
+detection:
+    selection:
+        Category: Access.Unauthorized
+        Analyzer.Data: Network
+    condition: selection
+---
+title: Network scan (single source IP)
+description: Many denied network accesses from a single source IP in a short window (possible port or host scan).
+idmefv2:
+  Category:
+    - "Recon.Network"
+  Priority: "High"
+correlation:
+    type: event_count
+    rules:
+        - network_access_denied
+    group-by:
+        - Source_IP
+    timespan: 1m
+    condition:
+        gte: 50
+    generate: true

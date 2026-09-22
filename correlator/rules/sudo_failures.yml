@@ -1,0 +1,28 @@
+# STATUS: not yet tested end to end - pushed on request for review (22/09/2026). See tests/TESTPLAN.md.
+title: Failed sudo authentication
+name: failed_sudo_auth
+description: Incorrect sudo password attempts.
+logsource:
+    category: alerts
+detection:
+    selection:
+        Category: Access.Other
+        Target_Service: sudo
+    condition: selection
+---
+title: Repeated sudo failures (single account)
+description: Repeated failed sudo attempts for the same account, a common precursor to local privilege escalation.
+idmefv2:
+  Category:
+    - "Access.Escalation"
+  Priority: "High"
+correlation:
+    type: event_count
+    rules:
+        - failed_sudo_auth
+    group-by:
+        - Target_User
+    timespan: 10m
+    condition:
+        gte: 5
+    generate: true

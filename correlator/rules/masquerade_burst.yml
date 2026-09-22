@@ -1,0 +1,27 @@
+# STATUS: not yet tested end to end - pushed on request for review (22/09/2026). See tests/TESTPLAN.md.
+title: Masquerade detected
+name: masquerade_detected
+description: Spoofing or masquerade detected by a network device (ASA, SRX, SonicWall).
+logsource:
+    category: alerts
+detection:
+    selection:
+        Category: Fraud.Masquerade
+    condition: selection
+---
+title: Sustained masquerade activity (single source IP)
+description: Several masquerade or spoofing events from the same source IP in a short window.
+idmefv2:
+  Category:
+    - "Fraud.Masquerade"
+  Priority: "High"
+correlation:
+    type: event_count
+    rules:
+        - masquerade_detected
+    group-by:
+        - Source_IP
+    timespan: 5m
+    condition:
+        gte: 5
+    generate: true

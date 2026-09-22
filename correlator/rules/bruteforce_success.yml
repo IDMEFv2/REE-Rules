@@ -1,0 +1,40 @@
+# STATUS: not yet tested end to end - pushed on request for review (22/09/2026). See tests/TESTPLAN.md.
+# NOTE: uses the Sigma "temporal_ordered" correlation type, which is not yet
+# validated on the Concerto correlator. Compile-test before relying on it.
+title: Authentication denied
+name: auth_denied_seq
+description: Denied authentication.
+logsource:
+    category: alerts
+detection:
+    selection:
+        Category: Access.Unauthorized
+        Analyzer.Data: Authentication
+    condition: selection
+---
+title: Authentication granted
+name: auth_granted_seq
+description: Successful authentication.
+logsource:
+    category: alerts
+detection:
+    selection:
+        Category: Access.Authorized
+        Analyzer.Data: Authentication
+    condition: selection
+---
+title: Successful login after repeated failures
+description: A successful authentication on an account that has just accumulated failures - the outcome that matters, a brute force that worked.
+idmefv2:
+  Category:
+    - "Access.Forced"
+  Priority: "High"
+correlation:
+    type: temporal_ordered
+    rules:
+        - auth_denied_seq
+        - auth_granted_seq
+    group-by:
+        - Target_User
+    timespan: 10m
+    generate: true
